@@ -1,23 +1,19 @@
 /**
  * Configuración de Firebase para Studio Cejas & Uñas
- * Pega tus credenciales de Firebase Console:
- * 1. Ve a console.firebase.google.com
- * 2. Selecciona o crea tu proyecto.
- * 3. En Configuración del proyecto > General > Tus apps > Añadir app Web (</>).
- * 4. Copia los valores del objeto firebaseConfig y reemplázalos aquí abajo.
+ * Proyecto: Sofyc21 (sofyc21-b2fe5)
  */
 
 window.firebaseConfig = {
-    apiKey: "TU_API_KEY",
-    authDomain: "TU_PROYECTO.firebaseapp.com",
-    projectId: "TU_PROYECTO",
-    storageBucket: "TU_PROYECTO.appspot.com",
-    messagingSenderId: "TU_MESSAGING_SENDER_ID",
-    appId: "TU_APP_ID"
+    apiKey: "AIzaSyDZ2J1QH_3FN9u2GALRU-tMThDdkkpZXiw",
+    authDomain: "sofyc21-b2fe5.firebaseapp.com",
+    projectId: "sofyc21-b2fe5",
+    storageBucket: "sofyc21-b2fe5.firebasestorage.app",
+    messagingSenderId: "1050532856784",
+    appId: "1:1050532856784:web:0d6301fa3b60c485582fd5"
 };
 
 /**
- * Valida si las credenciales de Firebase han sido reemplazadas por las reales.
+ * Valida si las credenciales de Firebase son válidas y están configuradas.
  */
 window.isFirebaseConfigured = function () {
     return Boolean(
@@ -29,7 +25,7 @@ window.isFirebaseConfigured = function () {
     );
 };
 
-// Exportación para entornos CommonJS si aplica
+// Compatibilidad para entornos CommonJS si aplica
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         firebaseConfig: window.firebaseConfig,
