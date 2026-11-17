@@ -1,27 +1,35 @@
 :root {
-    --bg-app: #FAF7F5;
-    --bg-card: #FFFFFF;
-    --bg-soft: #F4ECEA;
-    --primary: #C86D7D;
-    --primary-dark: #A95262;
-    --primary-light: #FCEEF0;
-    --text-main: #231F20;
-    --text-muted: #786D70;
-    --border: #EAE0DE;
-    --success: #15803D;
-    --success-bg: #DCFCE7;
-    --warning: #B45309;
-    --warning-bg: #FEF3C7;
-    --danger: #B91C1C;
-    --danger-bg: #FEE2E2;
-    --info: #0369A1;
-    --info-bg: #E0F2FE;
-    --process: #7E22CE;
-    --process-bg: #F3E8FF;
+    /* PALETA ORCHID SMOKE UI */
+    --bg-app: #2F2A30;               /* Gris púrpura (Fondo principal) */
+    --bg-card: #3A2332;              /* Superficies base */
+    --bg-surface-elevated: #6F0F3A;  /* Vino oscuro (Superficies elevadas) */
+    --bg-soft: #45283B;
+    --header-bg: rgba(47, 42, 48, 0.95);
+    --nav-bg: rgba(47, 42, 48, 0.97);
+
+    --primary: #A61E5E;              /* Rosa vibrante (Botones / Acción) */
+    --primary-dark: #87144B;
+    --primary-light: rgba(166, 30, 94, 0.25);
+
+    --text-muted: #D980A6;           /* Rosa suave (Iconos / Enlaces) */
+    --text-main: #EEE7EC;            /* Blanco humo (Texto principal) */
+    --border: rgba(217, 128, 166, 0.22);
+
+    --success: #4ADE80;
+    --success-bg: rgba(74, 222, 128, 0.16);
+    --warning: #FBBF24;
+    --warning-bg: rgba(251, 191, 36, 0.16);
+    --danger: #F87171;
+    --danger-bg: rgba(248, 113, 113, 0.16);
+    --info: #38BDF8;
+    --info-bg: rgba(56, 189, 248, 0.16);
+    --process: #C084FC;
+    --process-bg: rgba(192, 132, 252, 0.16);
+
     --radius-lg: 18px;
     --radius-md: 12px;
-    --shadow-sm: 0 2px 10px rgba(35, 31, 32, 0.05);
-    --shadow-lg: 0 10px 30px rgba(35, 31, 32, 0.14);
+    --shadow-sm: 0 4px 14px rgba(22, 17, 23, 0.4);
+    --shadow-lg: 0 10px 30px rgba(22, 17, 23, 0.7);
 }
 
 * {
@@ -33,7 +41,7 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
-    background-color: #EFEAE7;
+    background-color: #231F24;
     color: var(--text-main);
     line-height: 1.4;
     /* REGLA SAFARI iOS: Evita el rebote elástico vertical indeseado */
@@ -172,11 +180,11 @@ input, select, textarea {
     position: sticky;
     top: 0;
     z-index: 20;
-    background: rgba(250, 247, 245, 0.94);
+    background: var(--header-bg);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
     padding: calc(12px + env(safe-area-inset-top)) 18px 12px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid rgba(111, 15, 58, 0.5);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -193,8 +201,9 @@ input, select, textarea {
     font-weight: 600;
     padding: 3px 8px;
     border-radius: 12px;
-    background: rgba(46, 125, 50, 0.12);
-    color: #2e7d32;
+    background: rgba(111, 15, 58, 0.6);
+    color: #D980A6;
+    border: 1px solid rgba(217, 128, 166, 0.3);
     display: inline-flex;
     align-items: center;
     gap: 4px;
@@ -204,33 +213,34 @@ input, select, textarea {
 }
 
 .cloud-status-badge.saving {
-    background: rgba(245, 158, 11, 0.15);
-    color: #b45309;
+    background: rgba(166, 30, 94, 0.45);
+    color: #EEE7EC;
+    border-color: #A61E5E;
 }
 
 .cloud-status-badge.offline {
-    background: rgba(100, 100, 100, 0.12);
-    color: var(--text-muted);
+    background: rgba(255, 255, 255, 0.1);
+    color: #D980A6;
 }
 
 .app-subtitle {
     font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--primary);
+    color: #D980A6; /* Rosa suave */
     font-weight: 700;
 }
 
 .app-title {
     font-size: 20px;
     font-weight: 700;
-    color: var(--text-main);
+    color: #EEE7EC; /* Blanco humo */
 }
 
 .btn-icon-subtle {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    color: var(--text-muted);
+    background: #382431;
+    border: 1px solid rgba(217, 128, 166, 0.25);
+    color: #EEE7EC;
     font-size: 13px;
     font-weight: 600;
     padding: 6px 11px;
@@ -293,9 +303,9 @@ input, select, textarea {
 .date-input-native {
     font-size: 16px !important;
     font-family: inherit;
-    color: var(--text-main);
-    background: var(--bg-app);
-    border: 1px solid var(--border);
+    color: #EEE7EC; /* Blanco humo */
+    background: #252026;
+    border: 1px solid rgba(217, 128, 166, 0.26);
     border-radius: var(--radius-md);
     padding: 10px 12px;
     width: 100%;
@@ -305,8 +315,8 @@ input, select, textarea {
 
 .input-field:focus,
 .date-input-native:focus {
-    border-color: var(--primary);
-    background: #FFFFFF;
+    border-color: #A61E5E; /* Rosa vibrante */
+    background: #2C242C;
 }
 
 .date-input-native {
@@ -315,19 +325,28 @@ input, select, textarea {
     font-weight: 600;
 }
 
+.date-input-native::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.85);
+}
+
 .btn-pill {
-    background: var(--primary-light);
-    color: var(--primary-dark);
-    border: none;
+    background: #382431;
+    color: #EEE7EC;
+    border: 1px solid rgba(217, 128, 166, 0.25);
     border-radius: 20px;
     padding: 9px 16px;
     font-size: 14px;
     font-weight: 700;
     cursor: pointer;
+    transition: all 0.2s ease;
 }
 
-.btn-pill:active {
-    background: #F8DCE0;
+.btn-pill:active,
+.btn-pill.active {
+    background: #A61E5E; /* Rosa vibrante */
+    color: #EEE7EC;
+    border-color: #A61E5E;
 }
 
 .week-strip {
@@ -342,7 +361,37 @@ input, select, textarea {
     align-items: center;
     padding: 7px 2px;
     border-radius: 12px;
-    border: 1px solid transparent;
+    border: 1px solid rgba(217, 128, 166, 0.16);
+    background: #272127;
+    color: #EEE7EC;
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.day-chip .day-name {
+    font-size: 10px;
+    text-transform: uppercase;
+    color: #D980A6; /* Rosa suave */
+    font-weight: 600;
+}
+
+.day-chip .day-num {
+    font-size: 14px;
+    font-weight: 700;
+    margin-top: 2px;
+}
+
+.day-chip.active {
+    background: #A61E5E; /* Rosa vibrante */
+    border-color: #A61E5E;
+    color: #EEE7EC;
+}
+
+.day-chip.active .day-name {
+    color: #EEE7EC;
+}
     background: var(--bg-app);
     cursor: pointer;
     position: relative;
@@ -393,23 +442,25 @@ input, select, textarea {
 }
 
 .kpi-mini {
-    background: var(--bg-card);
+    background: #6F0F3A; /* Vino oscuro (Superficies elevadas) */
     border-radius: var(--radius-md);
     padding: 10px;
-    box-shadow: var(--shadow-sm);
+    box-shadow: 0 4px 14px rgba(111, 15, 58, 0.35);
+    border: 1px solid rgba(217, 128, 166, 0.28);
     text-align: center;
 }
 
 .kpi-label {
     display: block;
     font-size: 11px;
-    color: var(--text-muted);
+    color: #D980A6; /* Rosa suave */
     margin-bottom: 2px;
 }
 
 .kpi-value {
     font-size: 15px;
     font-weight: 700;
+    color: #EEE7EC; /* Blanco humo */
 }
 
 .text-warning {
@@ -429,36 +480,36 @@ input, select, textarea {
 
 .card,
 .cita-card {
-    background: var(--bg-card);
+    background: #382431;
     border-radius: var(--radius-lg);
     padding: 14px;
-    box-shadow: var(--shadow-sm);
-    border: 1px solid var(--border);
+    box-shadow: 0 4px 14px rgba(22, 17, 23, 0.35);
+    border: 1px solid rgba(217, 128, 166, 0.18);
 }
 
 .cita-card {
-    border-left: 5px solid var(--primary);
+    border-left: 5px solid #A61E5E; /* Rosa vibrante */
 }
 
 .cita-card.estado-pendiente {
-    border-left-color: #D97706;
+    border-left-color: #FBBF24;
 }
 
 .cita-card.estado-confirmada {
-    border-left-color: #0284C7;
+    border-left-color: #38BDF8;
 }
 
 .cita-card.estado-en_proceso {
-    border-left-color: #9333EA;
+    border-left-color: #C084FC;
 }
 
 .cita-card.estado-completada {
-    border-left-color: #16A34A;
+    border-left-color: #4ADE80;
     opacity: 0.95;
 }
 
 .cita-card.estado-cancelada {
-    border-left-color: #DC2626;
+    border-left-color: #F87171;
     opacity: 0.65;
 }
 
@@ -472,7 +523,7 @@ input, select, textarea {
 .cita-time {
     font-size: 14px;
     font-weight: 700;
-    color: var(--primary-dark);
+    color: #D980A6; /* Rosa suave */
 }
 
 .status-badge {
@@ -787,10 +838,10 @@ input, select, textarea {
     transform: translateX(-50%);
     width: 100%;
     max-width: 480px;
-    background: rgba(255, 255, 255, 0.96);
+    background: var(--nav-bg);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
-    border-top: 1px solid var(--border);
+    border-top: 1px solid rgba(111, 15, 58, 0.65);
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     align-items: center;
@@ -805,7 +856,7 @@ input, select, textarea {
     flex-direction: column;
     align-items: center;
     gap: 2px;
-    color: var(--text-muted);
+    color: #D980A6; /* Rosa suave */
     cursor: pointer;
     padding: 4px 0;
     user-select: none;
@@ -813,11 +864,17 @@ input, select, textarea {
 }
 
 .nav-item.active {
-    color: var(--primary);
+    color: #EEE7EC; /* Blanco humo */
+}
+
+.nav-item.active .nav-icon {
+    color: #A61E5E; /* Rosa vibrante */
+    transform: scale(1.15);
 }
 
 .nav-icon {
     font-size: 19px;
+    transition: transform 0.2s ease;
 }
 
 .nav-label {
@@ -829,13 +886,20 @@ input, select, textarea {
     width: 52px;
     height: 52px;
     border-radius: 50%;
-    background: var(--primary);
-    color: #FFFFFF;
+    background: #A61E5E; /* Rosa vibrante (Acción) */
+    color: #EEE7EC;
     border: 4px solid var(--bg-app);
     font-size: 28px;
     font-weight: 500;
     line-height: 1;
     margin: -22px auto 0;
+    box-shadow: 0 8px 24px rgba(166, 30, 94, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
     box-shadow: 0 6px 16px rgba(200, 109, 125, 0.45);
     cursor: pointer;
     user-select: none;
@@ -904,7 +968,7 @@ input, select, textarea {
 .modal-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(35, 31, 32, 0.52);
+    background: rgba(15, 12, 16, 0.78);
     z-index: 50;
     display: none;
     align-items: flex-end;
@@ -919,12 +983,13 @@ input, select, textarea {
     width: 100%;
     max-width: 480px;
     max-height: 90dvh;
-    background: var(--bg-card);
+    background: #36222F;
+    border-top: 2px solid #6F0F3A; /* Vino oscuro (Superficie elevada) */
     border-radius: 24px 24px 0 0;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    box-shadow: var(--shadow-lg);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.75);
     animation: slideUp 0.22s ease-out;
 }
 
@@ -940,7 +1005,7 @@ input, select, textarea {
 
 .sheet-header {
     padding: 16px 18px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid rgba(217, 128, 166, 0.2);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -949,11 +1014,13 @@ input, select, textarea {
 .sheet-header h2 {
     font-size: 18px;
     font-weight: 700;
+    color: #EEE7EC; /* Blanco humo */
 }
 
 .btn-close-modal {
-    background: var(--bg-app);
-    border: none;
+    background: #272127;
+    color: #EEE7EC;
+    border: 1px solid rgba(217, 128, 166, 0.2);
     width: 32px;
     height: 32px;
     border-radius: 50%;
@@ -1082,21 +1149,22 @@ input, select, textarea {
     gap: 6px;
     max-height: 175px;
     overflow-y: auto;
-    border: 1px solid var(--border);
+    border: 1px solid rgba(217, 128, 166, 0.2);
     border-radius: var(--radius-md);
     padding: 8px;
-    background: var(--bg-app);
+    background: #201C21;
 }
 
 .service-check-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #FFFFFF;
+    background: #2B232B;
     padding: 9px 10px;
     border-radius: 9px;
-    border: 1px solid var(--border);
+    border: 1px solid rgba(217, 128, 166, 0.22);
     font-size: 14px;
+    color: #EEE7EC;
     cursor: pointer;
 }
 
@@ -1113,11 +1181,12 @@ input, select, textarea {
 }
 
 .calc-summary-box {
-    background: var(--primary-light);
-    border: 1px solid #F3C6CE;
+    background: rgba(111, 15, 58, 0.4);
+    border: 1px solid #D980A6;
     border-radius: var(--radius-md);
     padding: 11px 12px;
     font-size: 14px;
+    color: #EEE7EC;
 }
 
 .calc-row {
