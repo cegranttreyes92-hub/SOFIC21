@@ -1214,3 +1214,137 @@ input, select, textarea {
 .toast.show {
     transform: translateX(-50%) translateY(0);
 }
+
+
+/* ==================== MODO OSCURO (DARK MODE) ==================== */
+body.dark-mode {
+    --bg-app: #151314;
+    --bg-card: #211D1F;
+    --bg-soft: #2C2529;
+    --header-bg: rgba(21, 19, 20, 0.94);
+    --nav-bg: rgba(33, 29, 31, 0.96);
+    --primary: #E28898;
+    --primary-dark: #C86D7D;
+    --primary-light: #38242A;
+    --text-main: #F7F2F0;
+    --text-muted: #A89B9E;
+    --border: #352B30;
+    --success: #4ADE80;
+    --success-bg: rgba(74, 222, 128, 0.16);
+    --warning: #FBBF24;
+    --warning-bg: rgba(251, 191, 36, 0.16);
+    --danger: #F87171;
+    --danger-bg: rgba(248, 113, 113, 0.16);
+    --info: #38BDF8;
+    --info-bg: rgba(56, 189, 248, 0.16);
+    --process: #C084FC;
+    --process-bg: rgba(192, 132, 252, 0.16);
+    --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.4);
+    --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.65);
+    background-color: #0E0C0D;
+    color: var(--text-main);
+}
+
+body.dark-mode .app-header {
+    background: var(--header-bg);
+}
+
+body.dark-mode .bottom-nav {
+    background: var(--nav-bg);
+    border-top: 1px solid var(--border);
+}
+
+body.dark-mode .bottom-sheet {
+    background: var(--bg-card);
+    border-top: 1px solid var(--border);
+}
+
+body.dark-mode .input-field,
+body.dark-mode .date-input-native {
+    background: #1A1618;
+    color: var(--text-main);
+    border-color: var(--border);
+}
+
+body.dark-mode .input-field:focus,
+body.dark-mode .date-input-native:focus {
+    background: #241E21;
+    border-color: var(--primary);
+}
+
+body.dark-mode .date-input-native::-webkit-calendar-picker-indicator,
+body.dark-mode input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.85);
+}
+
+body.dark-mode .btn-icon-subtle {
+    background: var(--bg-card);
+    border-color: var(--border);
+    color: var(--text-main);
+}
+
+body.dark-mode .btn-pill {
+    background: #2C2529;
+    color: var(--text-main);
+    border-color: var(--border);
+}
+
+body.dark-mode .btn-pill:hover,
+body.dark-mode .btn-pill.active {
+    background: var(--primary);
+    color: #FFFFFF;
+}
+
+body.dark-mode .day-chip {
+    background: #1A1618;
+    border-color: #2D2529;
+}
+
+body.dark-mode .day-chip.active {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #FFFFFF;
+}
+
+body.dark-mode .calc-summary-box {
+    background: var(--primary-light);
+    border-color: rgba(226, 136, 152, 0.35);
+}
+
+body.dark-mode .cloud-status-badge {
+    background: rgba(74, 222, 128, 0.16);
+    color: #4ADE80;
+}
+
+body.dark-mode .cloud-status-badge.saving {
+    background: rgba(251, 191, 36, 0.2);
+    color: #FBBF24;
+}
+
+body.dark-mode .cloud-status-badge.offline {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-muted);
+}
+
+body.dark-mode .service-choice-label {
+    background: #1A1618;
+    border-color: var(--border);
+}
+
+body.dark-mode .service-choice-label:hover {
+    border-color: var(--primary);
+}
+
+body.dark-mode .service-choice-label.selected {
+    background: var(--primary-light);
+    border-color: var(--primary);
+}
+
+body.dark-mode .modal-backdrop {
+    background: rgba(0, 0, 0, 0.72);
+}
+
+body.dark-mode .toast {
+    background: #F7F2F0;
+    color: #151314;
+}

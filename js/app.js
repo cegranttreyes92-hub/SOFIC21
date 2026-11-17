@@ -15,6 +15,7 @@ const AppState = {
 
 /* ==================== INICIALIZACIÓN ==================== */
 document.addEventListener('DOMContentLoaded', () => {
+    initTheme();
     initPWA();
     setupNavigation();
     setupModals();
@@ -47,6 +48,56 @@ function initPWA() {
                 });
         });
     }
+}
+
+/* ==================== TEMA / MODO OSCURO ==================== */
+function initTheme() {
+    const savedTheme = localStorage.getItem('studio_theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const initialTheme = savedTheme ? savedTheme : (prefersDark ? 'dark' : 'light');
+    applyTheme(initialTheme, false);
+
+    const btnHeader = document.getElementById('btn-toggle-theme');
+    if (btnHeader) {
+        btnHeader.addEventListener('click', toggleTheme);
+    }
+
+    const btnSettings = document.getElementById('btn-settings-theme');
+    if (btnSettings) {
+        btnSettings.addEventListener('click', toggleTheme);
+    }
+}
+
+function applyTheme(theme, showNotice = true) {
+    const isDark = theme === 'dark';
+    document.body.classList.toggle('dark-mode', isDark);
+    localStorage.setItem('studio_theme', theme);
+
+    const btnHeader = document.getElementById('btn-toggle-theme');
+    if (btnHeader) {
+        btnHeader.textContent = isDark ? '☀️' : '🌙';
+        btnHeader.title = isDark ? 'Cambiar a Modo Claro' : 'Cambiar a Modo Oscuro';
+    }
+
+    const btnSettings = document.getElementById('btn-settings-theme');
+    if (btnSettings) {
+        btnSettings.textContent = isDark ? '☀️ Modo Claro' : '🌙 Modo Oscuro';
+    }
+
+    const metaTheme = document.getElementById('meta-theme-color');
+    if (metaTheme) {
+        metaTheme.content = isDark ? '#151314' : '#FAF7F5';
+    }
+
+    if (showNotice) {
+        showToast(isDark ? '🌙 Modo Oscuro activado' : '☀️ Modo Claro activado');
+    }
+}
+
+function toggleTheme() {
+    const currentTheme = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+    const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    applyTheme(nextTheme, true);
 }
 
 function renderAll() {
