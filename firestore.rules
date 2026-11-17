@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Reglas para Studio Cejas & Uñas (Acceso directo para la dueña del estudio)
+    match /citas/{document=**} {
+      allow read, write: if true;
+    }
+    match /clientas/{document=**} {
+      allow read, write: if true;
+    }
+    match /servicios/{document=**} {
+      allow read, write: if true;
+    }
+    match /pagos/{document=**} {
+      allow read, write: if true;
+    }
+    match /config/{document=**} {
+      allow read, write: if true;
+    }
+
+    // Regla de respaldo general para colecciones del estudio
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}

@@ -1,0 +1,11 @@
+# Dependencias y logs
+node_modules/
+*.log
+
+# Entornos del sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Firebase local cache
+.firebase/

@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>Agenda Studio — Cejas & Uñas</title>
+
+    <!-- Configuración PWA & Optimización Safari iOS -->
+    <link rel="manifest" href="manifest.json" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Studio Citas" />
+    <meta name="theme-color" content="#FAF7F5" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- Íconos nativos iOS & PWA -->
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="assets/icons/icon-512.png" />
+
+    <link rel="stylesheet" href="css/styles.css" />
+</head>
+
+<body>
+
+    <!-- ==================== SHELL DE LA APLICACIÓN ==================== -->
+    <div class="app-shell" id="app-shell">
+        <!-- Cabecera fija con soporte safe-area iOS -->
+        <header class="app-header">
+            <div>
+                <span class="app-subtitle" id="header-subtitle">Studio Cejas & Uñas</span>
+                <h1 class="app-title" id="header-title">Agenda del Día</h1>
+            </div>
+            <div class="app-header-actions">
+                <button type="button" class="btn-icon-subtle" id="btn-open-settings" title="Ajustes y Estudio">
+                    ⚙️ Ajustes
+                </button>
+            </div>
+        </header>
+
+        <!-- CONTENIDO PRINCIPAL -->
+        <main class="app-main">
+
+            <!-- ==================== VISTA 1: AGENDA ==================== -->
+            <section id="view-agenda" class="view active">
+                <!-- Selector de fecha -->
+                <div class="date-controls">
+                    <div class="date-controls-top">
+                        <input type="date" id="agenda-date-picker" class="date-input-native" />
+                        <button type="button" class="btn-pill" id="btn-hoy">Hoy</button>
+                    </div>
+                    <div class="week-strip" id="week-strip"></div>
+                </div>
+
+                <!-- Resumen rápido del día -->
+                <div class="kpi-strip">
+                    <div class="kpi-mini">
+                        <span class="kpi-label">Citas activas</span>
+                        <strong class="kpi-value" id="kpi-citas-count">0</strong>
+                    </div>
+                    <div class="kpi-mini">
+                        <span class="kpi-label">Estimado día</span>
+                        <strong class="kpi-value" id="kpi-citas-estimado">S/ 0.00</strong>
+                    </div>
+                    <div class="kpi-mini">
+                        <span class="kpi-label">Por cobrar</span>
+                        <strong class="kpi-value text-warning" id="kpi-citas-pendiente">S/ 0.00</strong>
+                    </div>
+                </div>
+
+                <!-- Lista cronológica de citas -->
+                <div id="agenda-list" class="cards-stack"></div>
+            </section>
+
+            <!-- ==================== VISTA 2: CLIENTAS ==================== -->
+            <section id="view-clientas" class="view">
+                <div class="section-toolbar">
+                    <input type="search" id="search-clientas" class="input-field"
+                        placeholder="Buscar por nombre o teléfono..." />
+                    <button type="button" class="btn-primary btn-sm" id="btn-nueva-clienta">+ Nueva</button>
+                </div>
+                <div id="clientas-list" class="cards-stack"></div>
+            </section>
+
+            <!-- ==================== VISTA 3: SERVICIOS ==================== -->
+            <section id="view-servicios" class="view">
+                <div class="section-toolbar">
+                    <div class="filter-pills" id="servicios-filter">
+                        <button type="button" class="pill active" data-cat="Todos">Todos</button>
+                        <button type="button" class="pill" data-cat="Cejas">Cejas</button>
+                        <button type="button" class="pill" data-cat="Uñas">Uñas</button>
+                        <button type="button" class="pill" data-cat="Pestañas">Pestañas</button>
+                    </div>
+                    <button type="button" class="btn-primary btn-sm" id="btn-nuevo-servicio">+ Servicio</button>
+                </div>
+                <div id="servicios-list" class="cards-stack"></div>
+            </section>
+
+            <!-- ==================== VISTA 4: CAJA / PAGOS ==================== -->
+            <section id="view-caja" class="view">
+                <div class="filter-pills full-width" id="caja-period-filter">
+                    <button type="button" class="pill active" data-period="hoy">Hoy</button>
+                    <button type="button" class="pill" data-period="semana">7 Días</button>
+                    <button type="button" class="pill" data-period="mes">Este Mes</button>
+                </div>
+
+                <div class="caja-summary-grid">
+                    <div class="card caja-hero-card">
+                        <span class="kpi-label">Total Cobrado</span>
+                        <strong class="caja-big-amount" id="caja-total-cobrado">S/ 0.00</strong>
+                    </div>
+                    <div class="card caja-hero-card secondary">
+                        <span class="kpi-label">Saldos por Cobrar</span>
+                        <strong class="caja-big-amount text-warning" id="caja-total-pendiente">S/ 0.00</strong>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-section-title">Desglose por Método de Pago</h3>
+                    <div id="caja-metodos-list" class="metodos-grid"></div>
+                </div>
+
+                <h3 class="list-heading">Movimientos Recientes</h3>
+                <div id="pagos-list" class="cards-stack"></div>
+            </section>
+
+        </main>
+
+        <!-- Barra de Navegación Inferior fija -->
+        <nav class="bottom-nav">
+            <button type="button" class="nav-item active" data-view="view-agenda" data-title="Agenda del Día">
+                <span class="nav-icon">📅</span>
+                <span class="nav-label">Agenda</span>
+            </button>
+            <button type="button" class="nav-item" data-view="view-clientas" data-title="Cartera de Clientas">
+                <span class="nav-icon">👩🏻</span>
+                <span class="nav-label">Clientas</span>
+            </button>
+
+            <!-- Botón flotante central para agendar rápido -->
+            <button type="button" class="nav-fab" id="btn-fab-cita" aria-label="Nueva Cita">+</button>
+
+            <button type="button" class="nav-item" data-view="view-servicios" data-title="Catálogo de Servicios">
+                <span class="nav-icon">💅🏻</span>
+                <span class="nav-label">Servicios</span>
+            </button>
+            <button type="button" class="nav-item" data-view="view-caja" data-title="Control de Caja">
+                <span class="nav-icon">💵</span>
+                <span class="nav-label">Caja</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- ==================== MODAL 1: AGENDAR / EDITAR CITA ==================== -->
+    <div class="modal-backdrop" id="modal-cita">
+        <div class="bottom-sheet">
+            <div class="sheet-header">
+                <h2 id="modal-cita-title">Nueva Cita</h2>
+                <button type="button" class="btn-close-modal" data-close="modal-cita">✕</button>
+            </div>
+            <form id="form-cita" class="sheet-body">
+                <input type="hidden" id="cita-id" />
+                <input type="hidden" id="cita-clienta-id" />
+
+                <!-- Selección rápida con buscador de clienta -->
+                <div class="form-group">
+                    <div class="label-row">
+                        <label>Clienta</label>
+                        <button type="button" class="btn-link" id="toggle-nueva-clienta-inline">+ Clienta nueva</button>
+                    </div>
+
+                    <!-- Clienta seleccionada -->
+                    <div id="cita-clienta-selected" class="client-selected-badge hidden">
+                        <div>
+                            <span class="client-selected-name" id="cita-selected-nombre"></span>
+                            <span class="client-selected-phone" id="cita-selected-telefono"></span>
+                        </div>
+                        <button type="button" class="btn-link" id="btn-cambiar-clienta-cita">Cambiar ✕</button>
+                    </div>
+
+                    <!-- Buscador instantáneo -->
+                    <div class="client-search-container" id="cita-search-container">
+                        <input type="text" id="cita-clienta-search" class="input-field"
+                            placeholder="Escribe nombre o teléfono para buscar..." autocomplete="off" />
+                        <div id="cita-clientas-dropdown" class="client-search-dropdown"></div>
+                    </div>
+
+                    <!-- Formulario inline para crear clienta rápida -->
+                    <div id="inline-nueva-clienta" class="inline-box hidden">
+                        <span class="box-subtitle">Registrar Clienta Rápida</span>
+                        <input type="text" id="inline-clienta-nombre" class="input-field"
+                            placeholder="Nombre y apellido completo" />
+                        <input type="tel" id="inline-clienta-telefono" class="input-field"
+                            placeholder="Teléfono móvil (ej. 987654321)" />
+                        <button type="button" class="btn-pill" id="btn-guardar-clienta-inline" style="align-self: flex-start;">Fijar Clienta</button>
+                    </div>
+                </div>
+
+                <!-- Fecha y Hora -->
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label for="cita-fecha">Fecha</label>
+                        <input type="date" id="cita-fecha" class="input-field" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="cita-hora">Hora inicio</label>
+                        <input type="time" id="cita-hora" class="input-field" required />
+                    </div>
+                </div>
+
+                <!-- Selección múltiple de servicios -->
+                <div class="form-group">
+                    <label>Servicios a realizar</label>
+                    <div id="cita-servicios-checklist" class="checklist-box"></div>
+                </div>
+
+                <!-- Resumen calculado en tiempo real + Alerta de cruce -->
+                <div class="calc-summary-box" id="cita-calc-box">
+                    <div class="calc-row">
+                        <span>Horario estimado:</span>
+                        <strong id="calc-horario">--:-- a --:-- (0 min)</strong>
+                    </div>
+                    <div class="calc-row">
+                        <span>Total servicios:</span>
+                        <strong id="calc-total">S/ 0.00</strong>
+                    </div>
+                    <div id="calc-conflict-alert" class="conflict-alert hidden"></div>
+                </div>
+
+                <!-- Abono inicial (solo al crear cita nueva) -->
+                <div id="cita-abono-section" class="inline-box">
+                    <span class="box-subtitle">Abono / Seña inicial (Opcional)</span>
+                    <div class="form-row-2">
+                        <div class="form-group">
+                            <label for="cita-abono-monto">Monto (S/)</label>
+                            <input type="number" id="cita-abono-monto" class="input-field" min="0" step="1"
+                                placeholder="0.00" />
+                        </div>
+                        <div class="form-group">
+                            <label for="cita-abono-metodo">Método</label>
+                            <select id="cita-abono-metodo" class="input-field">
+                                <option value="Yape">Yape</option>
+                                <option value="Plin">Plin</option>
+                                <option value="Efectivo">Efectivo</option>
+                                <option value="Transferencia BCP/BBVA">Transferencia BCP/BBVA</option>
+                                <option value="Tarjeta / POS">Tarjeta / POS</option>
+                            </select>
+                        </div>
+                    </div>
+                    <input type="text" id="cita-abono-ref" class="input-field"
+                        placeholder="Nro. de operación / referencia (opcional)" />
+                </div>
+
+                <!-- Notas de la cita -->
+                <div class="form-group">
+                    <label for="cita-notas">Notas de la cita (diseño, tono, observaciones)</label>
+                    <textarea id="cita-notas" class="input-field" rows="2"
+                        placeholder="Ej. Trae referencia de diseño francés..."></textarea>
+                </div>
+
+                <button type="submit" class="btn-primary btn-block" id="btn-guardar-cita">Guardar Cita</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL 2: REGISTRAR PAGO / COBRAR ==================== -->
+    <div class="modal-backdrop" id="modal-pago">
+        <div class="bottom-sheet">
+            <div class="sheet-header">
+                <h2>Registrar Pago</h2>
+                <button type="button" class="btn-close-modal" data-close="modal-pago">✕</button>
+            </div>
+            <form id="form-pago" class="sheet-body">
+                <input type="hidden" id="pago-cita-id" />
+
+                <div class="pago-info-card">
+                    <strong id="pago-clienta-nombre">Clienta</strong>
+                    <div class="pago-stats">
+                        <span>Total: <strong id="pago-total-cita">S/ 0.00</strong></span>
+                        <span>Abonado: <strong id="pago-abonado-cita">S/ 0.00</strong></span>
+                        <span class="text-warning">Resta: <strong id="pago-saldo-cita">S/ 0.00</strong></span>
+                    </div>
+                </div>
+
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label for="pago-monto">Monto a cobrar (S/)</label>
+                        <input type="number" id="pago-monto" class="input-field" min="0.01" step="0.5" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="pago-metodo">Método de pago</label>
+                        <select id="pago-metodo" class="input-field">
+                            <option value="Yape">Yape</option>
+                            <option value="Plin">Plin</option>
+                            <option value="Efectivo">Efectivo</option>
+                            <option value="Transferencia BCP/BBVA">Transferencia BCP/BBVA</option>
+                            <option value="Tarjeta / POS">Tarjeta / POS</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="pago-referencia">Nro. de operación / Referencia (opcional)</label>
+                    <input type="text" id="pago-referencia" class="input-field" placeholder="Ej. Ref 8492" />
+                </div>
+
+                <label class="checkbox-inline">
+                    <input type="checkbox" id="pago-marcar-completada" checked />
+                    <span>Marcar cita como <strong>Completada</strong> al cobrar</span>
+                </label>
+
+                <button type="submit" class="btn-primary btn-block">Confirmar Cobro</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL 3: FICHA / EDITAR CLIENTA ==================== -->
+    <div class="modal-backdrop" id="modal-clienta">
+        <div class="bottom-sheet">
+            <div class="sheet-header">
+                <h2 id="modal-clienta-title">Ficha de Clienta</h2>
+                <button type="button" class="btn-close-modal" data-close="modal-clienta">✕</button>
+            </div>
+            <form id="form-clienta" class="sheet-body">
+                <input type="hidden" id="clienta-id" />
+
+                <div class="form-group">
+                    <label for="clienta-nombre">Nombre completo</label>
+                    <input type="text" id="clienta-nombre" class="input-field" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="clienta-telefono">Teléfono (WhatsApp)</label>
+                    <input type="tel" id="clienta-telefono" class="input-field" placeholder="987654321" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="clienta-notas-tecnicas">Ficha Técnica (Pigmentos, alergias, forma de uñas)</label>
+                    <textarea id="clienta-notas-tecnicas" class="input-field" rows="3"
+                        placeholder="Ej. Pigmento castaño medio 8 min. Uñas almendradas #3."></textarea>
+                </div>
+
+                <button type="submit" class="btn-primary btn-block">Guardar Datos de Clienta</button>
+
+                <!-- Botón de Recordatorio de Retoque por WhatsApp -->
+                <div id="clienta-retoque-section" class="hidden" style="margin-top: 8px;">
+                    <a id="btn-clienta-wa-retoque" href="#" target="_blank" rel="noopener"
+                        class="btn-action wa btn-block" style="display: block; text-align: center; padding: 12px;">
+                        📲 Recordar Retoque por WhatsApp
+                    </a>
+                </div>
+
+                <div id="clienta-historial-section" class="historial-box hidden">
+                    <h3 class="card-section-title">Historial de Visitas</h3>
+                    <div id="clienta-historial-list"></div>
+                </div>
+
+                <div id="clienta-delete-section" class="hidden" style="margin-top: 10px;">
+                    <button type="button" id="btn-eliminar-clienta" class="btn-danger-outline">
+                        🗑️ Eliminar Clienta de la Cartera
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL 4: CREAR / EDITAR SERVICIO ==================== -->
+    <div class="modal-backdrop" id="modal-servicio">
+        <div class="bottom-sheet">
+            <div class="sheet-header">
+                <h2 id="modal-servicio-title">Nuevo Servicio</h2>
+                <button type="button" class="btn-close-modal" data-close="modal-servicio">✕</button>
+            </div>
+            <form id="form-servicio" class="sheet-body">
+                <input type="hidden" id="servicio-id" />
+
+                <div class="form-group">
+                    <label for="servicio-nombre">Nombre del servicio</label>
+                    <input type="text" id="servicio-nombre" class="input-field"
+                        placeholder="Ej. Diseño + Pigmentación de Cejas" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="servicio-categoria">Categoría</label>
+                    <select id="servicio-categoria" class="input-field">
+                        <option value="Cejas">Cejas</option>
+                        <option value="Uñas">Uñas</option>
+                        <option value="Pestañas">Pestañas</option>
+                    </select>
+                </div>
+
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label for="servicio-duracion">Duración (minutos)</label>
+                        <input type="number" id="servicio-duracion" class="input-field" min="15" step="15" value="45"
+                            required />
+                    </div>
+                    <div class="form-group">
+                        <label for="servicio-precio">Precio (S/)</label>
+                        <input type="number" id="servicio-precio" class="input-field" min="0" step="1" value="35"
+                            required />
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary btn-block">Guardar Servicio</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL 5: REAGENDAR CITA ==================== -->
+    <div class="modal-backdrop" id="modal-reagendar">
+        <div class="bottom-sheet">
+            <div class="sheet-header">
+                <h2>Reagendar Cita</h2>
+                <button type="button" class="btn-close-modal" data-close="modal-reagendar">✕</button>
+            </div>
+            <form id="form-reagendar" class="sheet-body">
+                <input type="hidden" id="reagendar-cita-id" />
+                
+                <div class="pago-info-card">
+                    <strong id="reagendar-clienta-nombre">Clienta</strong>
+                    <div style="font-size:12px; color:var(--text-muted); margin-top:2px;" id="reagendar-servicios-resumen"></div>
+                </div>
+
+                <div class="form-row-2">
+                    <div class="form-group">
+                        <label for="reagendar-fecha">Nueva Fecha</label>
+                        <input type="date" id="reagendar-fecha" class="input-field" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="reagendar-hora">Nueva Hora</label>
+                        <input type="time" id="reagendar-hora" class="input-field" required />
+                    </div>
+                </div>
+
+                <div class="calc-summary-box">
+                    <div class="calc-row">
+                        <span>Horario estimado:</span>
+                        <strong id="reagendar-calc-horario">--:-- a --:--</strong>
+                    </div>
+                    <div id="reagendar-conflict-alert" class="conflict-alert hidden"></div>
+                </div>
+
+                <button type="submit" class="btn-primary btn-block" id="btn-confirmar-reagendar">Confirmar Reagendamiento</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL 6: AJUSTES / ESTUDIO ==================== -->
+    <div class="modal-backdrop" id="modal-settings">
+        <div class="bottom-sheet">
+            <div class="sheet-header">
+                <h2>Ajustes del Estudio</h2>
+                <button type="button" class="btn-close-modal" data-close="modal-settings">✕</button>
+            </div>
+            <div class="sheet-body">
+                <form id="form-settings-general" class="form-group">
+                    <div class="form-group">
+                        <label for="settings-nombre-estudio">Nombre del Estudio</label>
+                        <input type="text" id="settings-nombre-estudio" class="input-field" placeholder="Studio Cejas & Uñas" />
+                    </div>
+                    <div class="form-group">
+                        <label for="settings-telefono-estudio">Teléfono de Contacto</label>
+                        <input type="tel" id="settings-telefono-estudio" class="input-field" placeholder="987654321" />
+                    </div>
+                    <button type="submit" class="btn-primary btn-block">Guardar Información</button>
+                </form>
+
+                <div class="inline-box" style="margin-top: 10px;">
+                    <span class="box-subtitle">Catálogo de Servicios</span>
+                    <p style="font-size: 12px; color: var(--text-muted);">
+                        Carga el catálogo recomendado con 9 servicios populares de cejas, pestañas y uñas:
+                    </p>
+                    <button type="button" class="btn-pill" id="btn-cargar-catalogo-base">
+                        📦 Cargar Catálogo Base
+                    </button>
+                </div>
+
+                <div class="inline-box" style="margin-top: 10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <span class="box-subtitle">Sincronización Cloud (Firebase)</span>
+                        <span id="firebase-status-badge" style="font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 600; background: rgba(100,100,100,0.1); color: var(--text-muted);">Local</span>
+                    </div>
+                    <p id="firebase-status-desc" style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
+                        Datos guardados en este dispositivo. Para sincronizar tu iPhone y PC en tiempo real, ingresa tus credenciales en <code>js/firebase-config.js</code>.
+                    </p>
+                    <button type="button" class="btn-pill" id="btn-sync-firebase" style="display: none;">
+                        ☁️ Subir Datos Locales a Firebase
+                    </button>
+                </div>
+
+                <button type="button" class="btn-danger-outline" id="btn-reset-demo" style="margin-top: 10px;">
+                    ↻ Restaurar Datos Iniciales de Ejemplo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== MODAL 7: COMPROBANTE WHATSAPP RÁPIDO ==================== -->
+    <div class="modal-backdrop" id="modal-recibo-wa">
+        <div class="bottom-sheet">
+            <div class="sheet-header">
+                <h2>¡Pago Registrado con Éxito!</h2>
+                <button type="button" class="btn-close-modal" data-close="modal-recibo-wa">✕</button>
+            </div>
+            <div class="sheet-body" style="text-align: center;">
+                <div style="font-size: 40px; margin-bottom: 8px;">🎉</div>
+                <strong style="font-size: 16px;">¿Deseas enviar el comprobante a la clienta?</strong>
+                <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">
+                    Se generará un mensaje listo con el monto recibido, método y saldo actualizado.
+                </p>
+                <a id="btn-enviar-recibo-wa" href="#" target="_blank" rel="noopener" class="btn-primary btn-block" style="text-decoration:none; display:block;">
+                    📲 Enviar Comprobante por WhatsApp
+                </a>
+                <button type="button" class="btn-pill btn-block" data-close="modal-recibo-wa" style="margin-top: 8px;">
+                    Listo, no enviar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast de notificaciones -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Firebase SDK Compat v10 (Soporte universal: GitHub Pages, Safari iOS y local) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+
+    <!-- Scripts de la aplicación -->
+    <script src="js/logic.js"></script>
+    <script src="js/store.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>
