@@ -53,8 +53,7 @@ function initPWA() {
 /* ==================== TEMA / MODO OSCURO ==================== */
 function initTheme() {
     const savedTheme = localStorage.getItem('studio_theme');
-    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const initialTheme = savedTheme ? savedTheme : (prefersDark ? 'dark' : 'light');
+    const initialTheme = savedTheme ? savedTheme : 'dark';
     applyTheme(initialTheme, false);
 
     const btnHeader = document.getElementById('btn-toggle-theme');
@@ -86,11 +85,11 @@ function applyTheme(theme, showNotice = true) {
 
     const metaTheme = document.getElementById('meta-theme-color');
     if (metaTheme) {
-        metaTheme.content = isDark ? '#151314' : '#FAF7F5';
+        metaTheme.content = isDark ? '#2F2A30' : '#FAF7F5';
     }
 
     if (showNotice) {
-        showToast(isDark ? '🌙 Modo Oscuro activado' : '☀️ Modo Claro activado');
+        showToast(isDark ? '🌙 Paleta Oscura activada' : '☀️ Modo Claro activado');
     }
 }
 
