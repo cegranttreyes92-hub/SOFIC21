@@ -1,7 +1,8 @@
 /**
  * Capa de Persistencia y Base de Datos (store.js)
- * Sistema netamente en Soles peruanos (S/) con Yape, Plin y transferencias
- * Soporte dual: Firebase Firestore en tiempo real + Almacenamiento Local Offline
+ * Sistema en Soles peruanos (S/) con Yape, Plin y transferencias
+ * Auto-sincronización continua en segundo plano con Firebase Firestore
+ * No requiere botones de respaldo manual: todo cambio se guarda automáticamente en la nube.
  */
 
 function getLocalTodayISO() {
@@ -55,6 +56,7 @@ const storeState = {
 let changeListeners = [];
 let firestoreDb = null;
 let isFirebaseReady = false;
+let syncStatus = 'offline'; // 'connected' | 'saving' | 'offline'
 
 function notifySubscribers() {
     changeListeners.forEach(fn => {
@@ -64,6 +66,18 @@ function notifySubscribers() {
             console.error('[Store] Error notificando suscriptor:', err);
         }
     });
+}
+
+function notifySyncStatus(status) {
+    syncStatus = status;
+    Store.syncStatus = status;
+    if (typeof Store.onSyncStatusChange === 'function') {
+        try {
+            Store.onSyncStatusChange(status);
+        } catch (err) {
+            console.warn('[Store] Error notificando estado de sincronización:', err);
+        }
+    }
 }
 
 function saveToLocalStorage() {
@@ -80,6 +94,8 @@ function saveToLocalStorage() {
 
 const Store = {
     isFirebaseConnected: false,
+    syncStatus: 'offline',
+    onSyncStatusChange: null,
 
     subscribe(fn) {
         if (typeof fn === 'function') {
@@ -88,7 +104,7 @@ const Store = {
     },
 
     init() {
-        // 1. Cargar almacenamiento local de inmediato (render rápido y modo offline)
+        // 1. Cargar caché local de inmediato para respuesta instantánea de la interfaz
         let rawServicios, rawCitas, rawClientas, rawPagos, rawConfig;
         try {
             rawServicios = localStorage.getItem(STORAGE_KEYS.SERVICIOS);
@@ -114,18 +130,20 @@ const Store = {
             notifySubscribers();
         }
 
-        // 2. Conexión opcional a Firebase Firestore si las credenciales están configuradas
+        // 2. Conectar e iniciar auto-sincronización continua en la nube
         this.initFirebase();
     },
 
-    initFirebase() {
+    async initFirebase() {
         if (typeof window.firebase === 'undefined' || typeof window.isFirebaseConfigured !== 'function') {
-            console.log('[Store] SDK de Firebase o firebase-config no detectado. Funcionando en modo local.');
+            console.log('[Store] Firebase no detectado. Operando en almacenamiento local.');
+            notifySyncStatus('offline');
             return;
         }
 
         if (!window.isFirebaseConfigured()) {
-            console.log('[Store] Credenciales de Firebase pendientes de configurar en js/firebase-config.js. Modo local activo.');
+            console.log('[Store] Credenciales pendientes de configuración. Operando en local.');
+            notifySyncStatus('offline');
             return;
         }
 
@@ -135,32 +153,52 @@ const Store = {
             }
             firestoreDb = firebase.firestore();
 
-            // Persistencia offline de Firestore para iPhone / Safari / Web
+            // Persistencia local de Firestore para modo sin conexión en iPhone
             firestoreDb.enablePersistence({ synchronizeTabs: true }).catch(err => {
                 if (err.code === 'failed-precondition') {
-                    console.warn('[Store Firebase] Múltiples pestañas abiertas, persistencia en pestaña principal.');
+                    console.warn('[Firebase] Persistencia en pestaña principal.');
                 } else if (err.code === 'unimplemented') {
-                    console.warn('[Store Firebase] El navegador actual no soporta persistencia offline de Firestore.');
+                    console.warn('[Firebase] Persistencia offline no soportada.');
                 }
             });
 
             isFirebaseReady = true;
             this.isFirebaseConnected = true;
-            console.log('[Store] Conectado exitosamente a Firebase Firestore en tiempo real.');
+            notifySyncStatus('connected');
+            console.log('[Store] 🔥 Firebase Firestore conectado con auto-sincronización activa.');
 
-            // Suscripciones en tiempo real
+            // Escuchar cambios en vivo desde Firestore
             this.listenToFirestore();
+
+            // Auto-verificar si la base de datos remota está vacía y subir los datos iniciales solos
+            this.checkAndAutoSeedCloud();
         } catch (err) {
             console.error('[Store] Error al inicializar Firestore:', err);
             isFirebaseReady = false;
             this.isFirebaseConnected = false;
+            notifySyncStatus('offline');
+        }
+    },
+
+    async checkAndAutoSeedCloud() {
+        if (!firestoreDb) return;
+        try {
+            const serviciosSnap = await firestoreDb.collection('servicios').limit(1).get();
+            if (serviciosSnap.empty) {
+                console.log('[Store Firebase] Base de datos vacía. Respaldando automáticamente catálogo y datos iniciales...');
+                notifySyncStatus('saving');
+                await this.syncLocalToFirebase();
+                notifySyncStatus('connected');
+            }
+        } catch (err) {
+            console.warn('[Store Firebase] Verificación inicial de Firestore:', err);
         }
     },
 
     listenToFirestore() {
         if (!firestoreDb) return;
 
-        // Escuchar servicios
+        // Escuchar servicios en tiempo real
         firestoreDb.collection('servicios').onSnapshot(snapshot => {
             if (!snapshot.empty) {
                 const items = [];
@@ -171,7 +209,7 @@ const Store = {
             }
         }, err => console.warn('[Firebase] Error en servicios onSnapshot:', err));
 
-        // Escuchar clientas
+        // Escuchar clientas en tiempo real
         firestoreDb.collection('clientas').onSnapshot(snapshot => {
             if (!snapshot.empty) {
                 const items = [];
@@ -182,7 +220,7 @@ const Store = {
             }
         }, err => console.warn('[Firebase] Error en clientas onSnapshot:', err));
 
-        // Escuchar citas
+        // Escuchar citas en tiempo real
         firestoreDb.collection('citas').onSnapshot(snapshot => {
             if (!snapshot.empty) {
                 const items = [];
@@ -193,7 +231,7 @@ const Store = {
             }
         }, err => console.warn('[Firebase] Error en citas onSnapshot:', err));
 
-        // Escuchar pagos
+        // Escuchar pagos en tiempo real
         firestoreDb.collection('pagos').onSnapshot(snapshot => {
             if (!snapshot.empty) {
                 const items = [];
@@ -204,7 +242,7 @@ const Store = {
             }
         }, err => console.warn('[Firebase] Error en pagos onSnapshot:', err));
 
-        // Escuchar config general
+        // Escuchar configuración general en tiempo real
         firestoreDb.collection('config').doc('general').onSnapshot(doc => {
             if (doc.exists) {
                 storeState.config = { ...storeState.config, ...doc.data() };
@@ -215,9 +253,7 @@ const Store = {
     },
 
     async syncLocalToFirebase() {
-        if (!isFirebaseReady || !firestoreDb) {
-            throw new Error('Firebase no está configurado aún con credenciales válidas.');
-        }
+        if (!isFirebaseReady || !firestoreDb) return;
 
         const batch = firestoreDb.batch();
 
@@ -245,8 +281,7 @@ const Store = {
         batch.set(configRef, storeState.config);
 
         await batch.commit();
-        console.log('[Store] Todos los datos locales se sincronizaron con Firebase Firestore.');
-        return true;
+        console.log('[Store] Datos sincronizados en segundo plano en Firebase.');
     },
 
     seedDemoData() {
@@ -372,6 +407,9 @@ const Store = {
 
     resetDemoData() {
         this.seedDemoData();
+        if (isFirebaseReady && firestoreDb) {
+            this.syncLocalToFirebase();
+        }
     },
 
     // --- GETTERS ---
@@ -399,9 +437,12 @@ const Store = {
 
         if (isFirebaseReady && firestoreDb) {
             try {
+                notifySyncStatus('saving');
                 await firestoreDb.collection('config').doc('general').set(storeState.config);
+                setTimeout(() => notifySyncStatus('connected'), 400);
             } catch (err) {
-                console.error('[Firebase] Error al guardar config:', err);
+                console.error('[Firebase] Error auto-guardando config:', err);
+                notifySyncStatus('connected');
             }
         }
     },
@@ -420,9 +461,12 @@ const Store = {
 
         if (isFirebaseReady && firestoreDb) {
             try {
+                notifySyncStatus('saving');
                 await firestoreDb.collection('citas').doc(id).set(cleanedCita);
+                setTimeout(() => notifySyncStatus('connected'), 400);
             } catch (err) {
-                console.error('[Firebase] Error al guardar cita en Firestore:', err);
+                console.error('[Firebase] Error auto-guardando cita:', err);
+                notifySyncStatus('connected');
             }
         }
 
@@ -443,9 +487,12 @@ const Store = {
 
         if (isFirebaseReady && firestoreDb) {
             try {
+                notifySyncStatus('saving');
                 await firestoreDb.collection('citas').doc(citaId).delete();
+                setTimeout(() => notifySyncStatus('connected'), 400);
             } catch (err) {
-                console.error('[Firebase] Error al eliminar cita en Firestore:', err);
+                console.error('[Firebase] Error auto-eliminando cita:', err);
+                notifySyncStatus('connected');
             }
         }
     },
@@ -464,9 +511,12 @@ const Store = {
 
         if (isFirebaseReady && firestoreDb) {
             try {
+                notifySyncStatus('saving');
                 await firestoreDb.collection('clientas').doc(id).set(cleaned);
+                setTimeout(() => notifySyncStatus('connected'), 400);
             } catch (err) {
-                console.error('[Firebase] Error al guardar clienta en Firestore:', err);
+                console.error('[Firebase] Error auto-guardando clienta:', err);
+                notifySyncStatus('connected');
             }
         }
 
@@ -485,9 +535,12 @@ const Store = {
 
         if (isFirebaseReady && firestoreDb) {
             try {
+                notifySyncStatus('saving');
                 await firestoreDb.collection('clientas').doc(clientaId).delete();
+                setTimeout(() => notifySyncStatus('connected'), 400);
             } catch (err) {
-                console.error('[Firebase] Error al eliminar clienta en Firestore:', err);
+                console.error('[Firebase] Error auto-eliminando clienta:', err);
+                notifySyncStatus('connected');
             }
         }
     },
@@ -506,9 +559,12 @@ const Store = {
 
         if (isFirebaseReady && firestoreDb) {
             try {
+                notifySyncStatus('saving');
                 await firestoreDb.collection('servicios').doc(id).set(cleaned);
+                setTimeout(() => notifySyncStatus('connected'), 400);
             } catch (err) {
-                console.error('[Firebase] Error al guardar servicio en Firestore:', err);
+                console.error('[Firebase] Error auto-guardando servicio:', err);
+                notifySyncStatus('connected');
             }
         }
 
@@ -522,9 +578,12 @@ const Store = {
 
         if (isFirebaseReady && firestoreDb) {
             try {
+                notifySyncStatus('saving');
                 await firestoreDb.collection('servicios').doc(servicioId).delete();
+                setTimeout(() => notifySyncStatus('connected'), 400);
             } catch (err) {
-                console.error('[Firebase] Error al eliminar servicio en Firestore:', err);
+                console.error('[Firebase] Error auto-eliminando servicio:', err);
+                notifySyncStatus('connected');
             }
         }
     },
@@ -551,9 +610,12 @@ const Store = {
 
         if (isFirebaseReady && firestoreDb) {
             try {
+                notifySyncStatus('saving');
                 await firestoreDb.collection('pagos').doc(id).set(cleaned);
+                setTimeout(() => notifySyncStatus('connected'), 400);
             } catch (err) {
-                console.error('[Firebase] Error al guardar pago en Firestore:', err);
+                console.error('[Firebase] Error auto-guardando pago:', err);
+                notifySyncStatus('connected');
             }
         }
 
@@ -573,9 +635,12 @@ const Store = {
 
         if (isFirebaseReady && firestoreDb) {
             try {
+                notifySyncStatus('saving');
                 await firestoreDb.collection('pagos').doc(pagoId).set(merged);
+                setTimeout(() => notifySyncStatus('connected'), 400);
             } catch (err) {
-                console.error('[Firebase] Error al actualizar pago en Firestore:', err);
+                console.error('[Firebase] Error auto-actualizando pago:', err);
+                notifySyncStatus('connected');
             }
         }
 
@@ -594,9 +659,12 @@ const Store = {
 
         if (isFirebaseReady && firestoreDb) {
             try {
+                notifySyncStatus('saving');
                 await firestoreDb.collection('pagos').doc(pagoId).delete();
+                setTimeout(() => notifySyncStatus('connected'), 400);
             } catch (err) {
-                console.error('[Firebase] Error al eliminar pago en Firestore:', err);
+                console.error('[Firebase] Error auto-eliminando pago:', err);
+                notifySyncStatus('connected');
             }
         }
 

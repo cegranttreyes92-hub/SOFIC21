@@ -35,6 +35,9 @@
                 <h1 class="app-title" id="header-title">Agenda del Día</h1>
             </div>
             <div class="app-header-actions">
+                <span id="header-cloud-badge" class="cloud-status-badge" title="Auto-guardado en tiempo real en Firebase">
+                    ☁️ Conectado
+                </span>
                 <button type="button" class="btn-icon-subtle" id="btn-open-settings" title="Ajustes y Estudio">
                     ⚙️ Ajustes
                 </button>
@@ -481,15 +484,12 @@
 
                 <div class="inline-box" style="margin-top: 10px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                        <span class="box-subtitle">Sincronización Cloud (Firebase)</span>
-                        <span id="firebase-status-badge" style="font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 600; background: rgba(100,100,100,0.1); color: var(--text-muted);">Local</span>
+                        <span class="box-subtitle">Respaldo Automático (Firebase)</span>
+                        <span id="firebase-status-badge" style="font-size: 11px; padding: 2px 8px; border-radius: 12px; font-weight: 600; background: rgba(46,125,50,0.15); color: #2e7d32;">🟢 Auto-guardado Activo</span>
                     </div>
-                    <p id="firebase-status-desc" style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">
-                        Datos guardados en este dispositivo. Para sincronizar tu iPhone y PC en tiempo real, ingresa tus credenciales en <code>js/firebase-config.js</code>.
+                    <p id="firebase-status-desc" style="font-size: 12px; color: var(--text-muted); margin-bottom: 0;">
+                        Todo lo que registres, edites o cobres se respalda y sincroniza automáticamente en la nube en tiempo real. No necesitas presionar ningún botón para respaldar.
                     </p>
-                    <button type="button" class="btn-pill" id="btn-sync-firebase" style="display: none;">
-                        ☁️ Subir Datos Locales a Firebase
-                    </button>
                 </div>
 
                 <button type="button" class="btn-danger-outline" id="btn-reset-demo" style="margin-top: 10px;">

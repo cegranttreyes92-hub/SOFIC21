@@ -188,6 +188,31 @@ input, select, textarea {
     gap: 8px;
 }
 
+.cloud-status-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 12px;
+    background: rgba(46, 125, 50, 0.12);
+    color: #2e7d32;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    letter-spacing: 0.01em;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+}
+
+.cloud-status-badge.saving {
+    background: rgba(245, 158, 11, 0.15);
+    color: #b45309;
+}
+
+.cloud-status-badge.offline {
+    background: rgba(100, 100, 100, 0.12);
+    color: var(--text-muted);
+}
+
 .app-subtitle {
     font-size: 11px;
     text-transform: uppercase;

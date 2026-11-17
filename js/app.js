@@ -24,11 +24,13 @@ document.addEventListener('DOMContentLoaded', () => {
     setupCajaEvents();
     setupSettingsEvents();
 
-    // Inicializar persistencia de datos y suscribir la interfaz
+    // Inicializar sincronización con Firebase y suscribir interfaz
+    Store.onSyncStatusChange = updateSyncStatusUI;
     Store.init();
     Store.subscribe(() => {
         renderAll();
     });
+    updateSyncStatusUI(Store.syncStatus || 'connected');
     renderAll();
 });
 
@@ -72,6 +74,43 @@ function showToast(msg) {
     toast._timer = setTimeout(() => toast.classList.remove('show'), 2600);
 }
 
+/* ==================== ESTADO DE SINCRONIZACIÓN CLOUD ==================== */
+function updateSyncStatusUI(status) {
+    const badge = document.getElementById('header-cloud-badge');
+    const modalBadge = document.getElementById('firebase-status-badge');
+    const modalDesc = document.getElementById('firebase-status-desc');
+
+    if (badge) {
+        if (status === 'saving') {
+            badge.className = 'cloud-status-badge saving';
+            badge.textContent = '⏳ Guardando...';
+            badge.title = 'Respaldando cambios automáticamente en Firebase...';
+        } else if (status === 'connected' || Store.isFirebaseConnected) {
+            badge.className = 'cloud-status-badge';
+            badge.textContent = '☁️ En la nube';
+            badge.title = 'Conectado a Firebase Firestore en tiempo real. Auto-guardado activo.';
+        } else {
+            badge.className = 'cloud-status-badge offline';
+            badge.textContent = '☁️ Modo Local';
+            badge.title = 'Guardado local en este dispositivo.';
+        }
+    }
+
+    if (modalBadge && modalDesc) {
+        if (Store.isFirebaseConnected || status === 'connected') {
+            modalBadge.textContent = '🟢 Auto-guardado Activo';
+            modalBadge.style.background = 'rgba(46, 125, 50, 0.15)';
+            modalBadge.style.color = '#2e7d32';
+            modalDesc.textContent = 'Todo lo que registres, edites o cobres se respalda y sincroniza automáticamente en Firebase en tiempo real. No necesitas presionar ningún botón.';
+        } else {
+            modalBadge.textContent = '🟡 Modo Local';
+            modalBadge.style.background = 'rgba(245, 158, 11, 0.15)';
+            modalBadge.style.color = '#b45309';
+            modalDesc.textContent = 'Datos guardados localmente en este dispositivo. Se sincronizarán automáticamente al conectar con Firebase.';
+        }
+    }
+}
+
 /* ==================== AJUSTES DEL ESTUDIO ==================== */
 function setupSettingsEvents() {
     const btnOpen = document.getElementById('btn-open-settings');
@@ -80,46 +119,8 @@ function setupSettingsEvents() {
             const config = Store.getConfig();
             document.getElementById('settings-nombre-estudio').value = config.nombreEstudio || '';
             document.getElementById('settings-telefono-estudio').value = config.telefonoEstudio || '';
-
-            // Actualizar estado visual de Firebase
-            const badge = document.getElementById('firebase-status-badge');
-            const desc = document.getElementById('firebase-status-desc');
-            const btnSync = document.getElementById('btn-sync-firebase');
-
-            if (badge && desc) {
-                if (Store.isFirebaseConnected) {
-                    badge.textContent = '🟢 Conectado (Nube)';
-                    badge.style.background = 'rgba(46, 125, 50, 0.15)';
-                    badge.style.color = '#2e7d32';
-                    desc.innerHTML = 'Base de datos Firestore conectada en tiempo real. Todos los cambios se sincronizan en vivo entre tus dispositivos (iPhone, PC, etc.).';
-                    if (btnSync) btnSync.style.display = 'block';
-                } else {
-                    badge.textContent = '🟡 Modo Local';
-                    badge.style.background = 'rgba(245, 158, 11, 0.15)';
-                    badge.style.color = '#b45309';
-                    desc.innerHTML = 'Datos guardados de forma segura en este dispositivo. Para sincronizar en tiempo real en la nube, coloca tus credenciales en <code>js/firebase-config.js</code>.';
-                    if (btnSync) btnSync.style.display = 'none';
-                }
-            }
-
+            updateSyncStatusUI(Store.syncStatus || 'connected');
             openModal('modal-settings');
-        });
-    }
-
-    const btnSync = document.getElementById('btn-sync-firebase');
-    if (btnSync) {
-        btnSync.addEventListener('click', async () => {
-            try {
-                btnSync.disabled = true;
-                btnSync.textContent = '⏳ Sincronizando con Firebase...';
-                await Store.syncLocalToFirebase();
-                showToast('¡Datos sincronizados con éxito en Firebase!');
-            } catch (err) {
-                alert('Error al sincronizar con Firebase: ' + (err.message || err));
-            } finally {
-                btnSync.disabled = false;
-                btnSync.textContent = '☁️ Subir Datos Locales a Firebase';
-            }
         });
     }
 
