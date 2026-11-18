@@ -80,7 +80,7 @@ function applyTheme(theme, showNotice = true) {
 
     const btnSettings = document.getElementById('btn-settings-theme');
     if (btnSettings) {
-        btnSettings.textContent = isDark ? '☀️ Modo Claro' : '🌙 Modo Oscuro';
+        btnSettings.textContent = isDark ? '☀️ Modo Claro' : '🌙 Modo Oscuro (Orchid Smoke)';
     }
 
     const metaTheme = document.getElementById('meta-theme-color');
@@ -89,7 +89,7 @@ function applyTheme(theme, showNotice = true) {
     }
 
     if (showNotice) {
-        showToast(isDark ? '🌙 Paleta Oscura activada' : '☀️ Modo Claro activado');
+        showToast(isDark ? '🌙 Modo Oscuro (Orchid Smoke) activado' : '☀️ Modo Claro activado');
     }
 }
 

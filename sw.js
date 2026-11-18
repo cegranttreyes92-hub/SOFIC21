@@ -1,4 +1,4 @@
-const CACHE_NAME = 'studio-citas-v6';
+const CACHE_NAME = 'studio-citas-v7';
 
 const STATIC_ASSETS = [
     './',
